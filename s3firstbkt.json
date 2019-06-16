@@ -1,0 +1,51 @@
+{
+	"AWSCloudFormationTemplate": "2010-09-09",
+	"Description": "S3 Creation Template",
+	"Parameters": {
+		"BucketName": {"Type": "String"},
+		"AccessControl": {
+			"Description": "Access Control List",
+			"Type": "String",
+			"Default": "private",
+			"AllowedValues": ["private", "public-read", "public-read-write", "aws-exec-read", "authenticated-read", "bucket-owner-read", "bucket-owner-full-control", "log-delivery-write"]
+		}
+	},
+	"Resources": {
+		"s3BktMum": {
+			"Type": "AWS::S3::Bucket",
+			"Properties": {
+				"BucketName": {"Ref": "BucketName"},
+				"AccelerateConfiguration": {"AccelerationStatus": "Enabled" },
+				"AccessControl": {"Ref": "AccessControl"},
+				"BucketEncryption": {"ServerSideEncryptionConfiguration" : {"SSEAlgorithm": "AES256"} },
+				"CorsConfiguration": { 
+					"CorsRules":[
+						{"AllowedHeaders": ["*"],"AllowedMethods": ["GET","POST","UPDATE","DELETE", "HEAD"],"AllowedOrigins": ["*"],"MaxAge": 3000}
+					]
+				},
+				"LifecycleConfiguration": {
+					"Rules": {
+						"Id":"S3LifeCycleRule",
+						"Status": "Enabled",
+						"ExpirationInDays": 30,
+						"Prefix": "",
+						"AbortIncompleteMultipartUpload": {"DaysAfterInitiation" : 5 },
+						"Transitions": {
+							"StorageClass": "STANDARD_IA",
+							"TransitionDate": "2019-06-30"
+						}
+					}
+				},
+				"VersioningConfiguration": {"Status": "Enabled" },
+				"Tags": [
+					 { "Key": "AppID", "Value": "OMVZW" }
+				]
+
+			}
+		}
+	},
+	"Outputs": {
+		"Description": "Bucket ID",
+		"Value": {"Ref":  "s3-bkt-mum"}
+	}
+}
